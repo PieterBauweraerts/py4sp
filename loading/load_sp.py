@@ -109,6 +109,17 @@ def load_stream_spec(filename, L, N, Nz):
     spec['ww'] = dummy[2*Nz-1:,1:]
     return spec
 
+def load_field_bin(filename, N1, N2, N3):
+    stat = {}
+    with open(filename, 'rb') as binfile:
+        dumm = np.fromfile(binfile, dtype=np.float64)
+        shape = (N1,N2,N3,3)
+        dumm = dumm.reshape(shape, order='F')
+        stat['u']   = dumm[:,:,:,0]
+        stat['v']   = dumm[:,:,:,1]
+        stat['w']   = dumm[:,:,:,2]
+    return stat
+
 def load_BLfieldstat_bin(filename, N1, N2, N3):
     N4 = 11
     stat = {}
@@ -132,6 +143,69 @@ def load_BLfieldstat_bin(filename, N1, N2, N3):
         stat['wst'] = dumm[:,:,:,10]
     return stat
 
+def load_BLfield_real(filename, N1, N2, N3):
+    N1 = N1/2+1
+    BL = {}
+    with open(filename, 'rb') as binfile:
+        BL['time'] = np.fromfile(binfile, dtype=np.float64, count=1)
+        BL['Lx'] = np.fromfile(binfile, dtype=np.float64, count=1)
+        BL['Ly'] = np.fromfile(binfile, dtype=np.float64, count=1)
+        BL['Nx2'] = np.fromfile(binfile, dtype=np.int32, count=1)
+        BL['Ny'] = np.fromfile(binfile, dtype=np.int32, count=1)
+        BL['Nz'] = np.fromfile(binfile, dtype=np.int32, count=1)
+        BL['thetaground'] = np.fromfile(binfile, dtype=np.float64, count=1)
+        dum = np.fromfile(binfile,dtype=np.complex128)
+
+    amount = N1*N2*N3
+    shape  = (N1, N2, N3)
+    shape2 = (N1, N2, N3-1)
+    uu = dum[:amount].reshape(shape, order='F')
+    vv = dum[amount:2*amount].reshape(shape, order='F')
+    ww = dum[2*amount:].reshape(shape2, order='F')
+    
+    uu = np.fft.ifft(uu,axis=1)
+    vv = np.fft.ifft(vv,axis=1)
+    ww = np.fft.ifft(ww,axis=1)
+    BL['u']  = np.fft.irfft(uu,axis=0)
+    BL['v']  = np.fft.irfft(vv,axis=0)
+    BL['w']  = np.fft.irfft(ww,axis=0)
+
+    return BL
+
+def cube_show_slider(cube, axis=2, **kwargs):
+    import matplotlib.pyplot as plt
+    from matplotlib.widgets import Slider, Button, RadioButtons
+    # check dim
+    if not cube.ndim == 3:
+        raise ValueError("cube should be an ndarray with ndim == 3")
+    # generate figure
+    fig = plt.figure()
+    ax = plt.subplot(111)
+    fig.subplots_adjust(left=0.25, bottom=0.25)
+
+    # select first image
+    s = [slice(0, 1) if i == axis else slice(None) for i in xrange(3)]
+    im = cube[s].squeeze()
+
+    # display image
+    l = ax.imshow(im, **kwargs)
+    axcolor = 'lightgoldenrodyellow'
+    ax = fig.add_axes([0.25, 0.1, 0.65, 0.03], axisbg=axcolor)
+        
+    slider = Slider(ax, 'Axis %i index' % axis, 0, cube.shape[axis] - 1,
+                                        valinit=0, valfmt='%i')
+            
+    def update(val):
+        ind = int(slider.val)
+        s = [slice(ind, ind + 1) if i == axis else slice(None) for i in xrange(3)]
+        im = cube[s].squeeze()
+        l.set_data(im, **kwargs)
+        fig.canvas.draw()
+        
+    slider.on_changed(update)
+                                                                
+    plt.show()
+
 def load_BLfield(filename, N1, N2, N3):
     N1 = N1/2+1
     BL = {}
@@ -151,8 +225,10 @@ def load_BLfield(filename, N1, N2, N3):
     BL['uu'] = dum[:amount].reshape(shape, order='F')
     BL['vv'] = dum[amount:2*amount].reshape(shape, order='F')
     BL['ww'] = dum[2*amount:].reshape(shape2, order='F')
+    BL['kx'] = [(i)/BL['Lx']*(2*np.pi) for i in range(N1/2)]
+    BL['ky'] = [(i)/BL['Ly']*(2*np.pi) for i in range(-N2/2+1, N2/2)]
     
-    post = True
+    post = False
     BLpostkeys = ['uu','vv','ww']
     if post:
         for key in BLpostkeys:

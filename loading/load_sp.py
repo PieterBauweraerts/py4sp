@@ -101,7 +101,7 @@ def load_BLfieldstat(filename, N1, N2, N3):
 def load_1D_spectrum(filename, L, N, Nz):
     dummy = np.loadtxt(filename, comments='%')
     spec = {}
-    spec['k']  = [(i)/L*(2*np.pi) for i in range(N/2)]
+    spec['k']  = np.array([(i)/L*(2*np.pi) for i in range(N/2)])
     spec['z']  = dummy[0:Nz-1,0]
     spec['uu'] = dummy[0:Nz-1,1:]
     spec['vv'] = dummy[Nz:2*Nz-1,1:]

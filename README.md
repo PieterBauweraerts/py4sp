@@ -1,2 +1,2 @@
-# post-python
-Python postprocessing framework
+# py4sp
+Python postprocessing framework for SP-Wind LES code.

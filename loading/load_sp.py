@@ -41,7 +41,7 @@ def load_plane(filename, N1, N2):
 def load_spectral_field(filename, N1, N2, N3, N4):
     dummy = np.loadtxt(filename, skiprows=7)
     spectral = {}
-    d = dummy[:,1] + dummy[:,1]*1j
+    d = dummy[:,0] + dummy[:,1]*1j
     spectral['u'] = np.reshape(d[0:N1*N2*N3], [N1, N2, N3], order='F')
     spectral['v'] = np.reshape(d[N1*N2*N3:2*N1*N2*N3], [N1, N2, N3], order='F')
     spectral['w'] = np.reshape(d[2*N1*N2*N3:], [N1, N2, N3-1], order='F')

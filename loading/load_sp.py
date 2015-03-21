@@ -98,7 +98,7 @@ def load_BLfieldstat(filename, N1, N2, N3):
     stat['wst'] = u[:,:,:,10]
     return stat
 
-def load_stream_spec(filename, L, N, Nz):
+def load_1D_spectrum(filename, L, N, Nz):
     dummy = np.loadtxt(filename, comments='%')
     spec = {}
     spec['k']  = [(i)/L*(2*np.pi) for i in range(N/2)]

@@ -107,6 +107,10 @@ def load_1D_spectrum(filename, L, N, Nz):
     spec['vv'] = dummy[Nz:2*Nz-1,1:]
     spec['zst']= dummy[2*Nz-1:,0]
     spec['ww'] = dummy[2*Nz-1:,1:]
+#    if(np.size(spec['uu'][1,:]) > np.size(spec['k'])):
+#        spec['uu'] = np.delete(spec['uu'],np.size(spec['uu'][1,:])-1, axis=1)
+#        spec['vv'] = np.delete(spec['vv'],np.size(spec['uu'][1,:])-1, axis=1)
+#        spec['ww'] = np.delete(spec['ww'],np.size(spec['uu'][1,:])-1, axis=1)
     return spec
 
 def load_field_bin(filename, N1, N2, N3):
@@ -166,9 +170,9 @@ def load_BLfield_real(filename, N1, N2, N3):
     uu = np.fft.ifft(uu,axis=1)
     vv = np.fft.ifft(vv,axis=1)
     ww = np.fft.ifft(ww,axis=1)
-    BL['u']  = np.fft.irfft(uu,axis=0)
-    BL['v']  = np.fft.irfft(vv,axis=0)
-    BL['w']  = np.fft.irfft(ww,axis=0)
+    BL['u']  = np.fft.irfft(uu,axis=0)*N1*N2
+    BL['v']  = np.fft.irfft(vv,axis=0)*N1*N2
+    BL['w']  = np.fft.irfft(ww,axis=0)*N1*N2
 
     return BL
 

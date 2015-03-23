@@ -199,7 +199,7 @@ def load_BLfield(filename, N1, N2, N3):
     BL['kx'] = [(i)/BL['Lx']*(2*np.pi) for i in range(N1/2)]
     BL['ky'] = [(i)/BL['Ly']*(2*np.pi) for i in range(-N2/2+1, N2/2)]
     
-    post = False
+    post = True
     BLpostkeys = ['uu','vv','ww']
     if post:
         for key in BLpostkeys:

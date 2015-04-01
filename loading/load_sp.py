@@ -55,7 +55,7 @@ def load_plane(filename, N1, N2):
 def load_spectral_field(filename, N1, N2, N3, N4):
     dummy = np.loadtxt(filename, skiprows=7)
     spectral = {}
-    d = dummy[:,1] + dummy[:,1]*1j
+    d = dummy[:,0] + dummy[:,1]*1j
     spectral['u'] = np.reshape(d[0:N1*N2*N3], [N1, N2, N3], order='F')
     spectral['v'] = np.reshape(d[N1*N2*N3:2*N1*N2*N3], [N1, N2, N3], order='F')
     spectral['w'] = np.reshape(d[2*N1*N2*N3:], [N1, N2, N3-1], order='F')
@@ -98,15 +98,19 @@ def load_BLfieldstat(filename, N1, N2, N3):
     stat['wst'] = u[:,:,:,10]
     return stat
 
-def load_stream_spec(filename, L, N, Nz):
+def load_1D_spectrum(filename, L, N, Nz):
     dummy = np.loadtxt(filename, comments='%')
     spec = {}
-    spec['k']  = [(i)/L*(2*np.pi) for i in range(N/2)]
+    spec['k']  = np.array([(i)/L*(2*np.pi) for i in range(N/2)])
     spec['z']  = dummy[0:Nz-1,0]
     spec['uu'] = dummy[0:Nz-1,1:]
     spec['vv'] = dummy[Nz:2*Nz-1,1:]
     spec['zst']= dummy[2*Nz-1:,0]
     spec['ww'] = dummy[2*Nz-1:,1:]
+#    if(np.size(spec['uu'][1,:]) > np.size(spec['k'])):
+#        spec['uu'] = np.delete(spec['uu'],np.size(spec['uu'][1,:])-1, axis=1)
+#        spec['vv'] = np.delete(spec['vv'],np.size(spec['uu'][1,:])-1, axis=1)
+#        spec['ww'] = np.delete(spec['ww'],np.size(spec['uu'][1,:])-1, axis=1)
     return spec
 
 def load_field_bin(filename, N1, N2, N3):
@@ -166,9 +170,9 @@ def load_BLfield_real(filename, N1, N2, N3):
     uu = np.fft.ifft(uu,axis=1)
     vv = np.fft.ifft(vv,axis=1)
     ww = np.fft.ifft(ww,axis=1)
-    BL['u']  = np.fft.irfft(uu,axis=0)
-    BL['v']  = np.fft.irfft(vv,axis=0)
-    BL['w']  = np.fft.irfft(ww,axis=0)
+    BL['u']  = np.fft.irfft(uu,axis=0)*N1*N2
+    BL['v']  = np.fft.irfft(vv,axis=0)*N1*N2
+    BL['w']  = np.fft.irfft(ww,axis=0)*N1*N2
 
     return BL
 
@@ -193,8 +197,6 @@ def load_BLfield_real_ascii(filename, N1, N2, N3):
     BL['w']  = np.fft.irfft(ww,axis=0)
 
     return BL
-
-
 
 def cube_show_slider(cube, axis=2, **kwargs):
     import matplotlib.pyplot as plt
@@ -252,7 +254,7 @@ def load_BLfield(filename, N1, N2, N3):
     BL['kx'] = [(i)/BL['Lx']*(2*np.pi) for i in range(N1/2)]
     BL['ky'] = [(i)/BL['Ly']*(2*np.pi) for i in range(-N2/2+1, N2/2)]
     
-    post = False
+    post = True
     BLpostkeys = ['uu','vv','ww']
     if post:
         for key in BLpostkeys:

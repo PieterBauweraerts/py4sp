@@ -172,6 +172,30 @@ def load_BLfield_real(filename, N1, N2, N3):
 
     return BL
 
+def load_BLfield_real_ascii(filename, N1, N2, N3):
+    N1 = N1/2+1
+    BL = {}
+    dum = np.loadtxt(filename, comments='%')
+    dum = dum[:,0] + 1j*dum[:,1]
+
+    amount = N1*N2*N3
+    shape  = (N1, N2, N3)
+    shape2 = (N1, N2, N3-1)
+    uu = dum[:amount].reshape(shape, order='F')
+    vv = dum[amount:2*amount].reshape(shape, order='F')
+    ww = dum[2*amount:].reshape(shape2, order='F')
+    
+    uu = np.fft.ifft(uu,axis=1)
+    vv = np.fft.ifft(vv,axis=1)
+    ww = np.fft.ifft(ww,axis=1)
+    BL['u']  = np.fft.irfft(uu,axis=0)
+    BL['v']  = np.fft.irfft(vv,axis=0)
+    BL['w']  = np.fft.irfft(ww,axis=0)
+
+    return BL
+
+
+
 def cube_show_slider(cube, axis=2, **kwargs):
     import matplotlib.pyplot as plt
     from matplotlib.widgets import Slider, Button, RadioButtons

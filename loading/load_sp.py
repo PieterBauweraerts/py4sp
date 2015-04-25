@@ -192,9 +192,9 @@ def load_BLfield_real_ascii(filename, N1, N2, N3):
     uu = np.fft.ifft(uu,axis=1)
     vv = np.fft.ifft(vv,axis=1)
     ww = np.fft.ifft(ww,axis=1)
-    BL['u']  = np.fft.irfft(uu,axis=0)
-    BL['v']  = np.fft.irfft(vv,axis=0)
-    BL['w']  = np.fft.irfft(ww,axis=0)
+    BL['u']  = np.fft.irfft(uu,axis=0)*N1*N2
+    BL['v']  = np.fft.irfft(vv,axis=0)*N1*N2
+    BL['w']  = np.fft.irfft(ww,axis=0)*N1*N2
 
     return BL
 

@@ -159,6 +159,17 @@ def load_BLfield_real(filename, N1, N2, N3):
         BL['Nz'] = np.fromfile(binfile, dtype=np.int32, count=1)
         BL['thetaground'] = np.fromfile(binfile, dtype=np.float64, count=1)
         dum = np.fromfile(binfile,dtype=np.complex128)
+    print '######################'
+    print 'BL_field.dat data:'
+    print 'time         = ', BL['time']
+    print 'Lx           = ', BL['Lx']
+    print 'Ly           = ', BL['Ly']
+    print 'Nx2          = ', BL['Nx2']
+    print 'Ny           = ', BL['Ny']
+    print 'Nz           = ', BL['Nz']
+    print 'thetaground  = ', BL['thetaground']
+    print 'restsize     = ', dum.size
+    print '######################'
 
     amount = N1*N2*N3
     shape  = (N1, N2, N3)

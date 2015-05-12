@@ -1,4 +1,5 @@
 import numpy as np
+import fft_sp as fft
 
 class Turbine:
     def __init__(self, turb):
@@ -178,12 +179,9 @@ def load_BLfield_real(filename, N1, N2, N3):
     vv = dum[amount:2*amount].reshape(shape, order='F')
     ww = dum[2*amount:].reshape(shape2, order='F')
     
-    uu = np.fft.ifft(uu,axis=1)
-    vv = np.fft.ifft(vv,axis=1)
-    ww = np.fft.ifft(ww,axis=1)
-    BL['u']  = np.fft.irfft(uu,axis=0)*N1*N2
-    BL['v']  = np.fft.irfft(vv,axis=0)*N1*N2
-    BL['w']  = np.fft.irfft(ww,axis=0)*N1*N2
+    BL['u']  = fft.c2r(uu, N1, N2)
+    BL['v']  = fft.c2r(vv, N1, N2)
+    BL['w']  = fft.c2r(ww, N1, N2)
 
     return BL
 
@@ -200,12 +198,9 @@ def load_BLfield_real_ascii(filename, N1, N2, N3):
     vv = dum[amount:2*amount].reshape(shape, order='F')
     ww = dum[2*amount:].reshape(shape2, order='F')
     
-    uu = np.fft.ifft(uu,axis=1)
-    vv = np.fft.ifft(vv,axis=1)
-    ww = np.fft.ifft(ww,axis=1)
-    BL['u']  = np.fft.irfft(uu,axis=0)*N1*N2
-    BL['v']  = np.fft.irfft(vv,axis=0)*N1*N2
-    BL['w']  = np.fft.irfft(ww,axis=0)*N1*N2
+    BL['u']  = fft.c2r(uu, N1, N2)
+    BL['v']  = fft.c2r(vv, N1, N2)
+    BL['w']  = fft.c2r(ww, N1, N2)
 
     return BL
 

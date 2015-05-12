@@ -10,4 +10,5 @@ def c2r(field, N1, N2):
 def r2c(field, N1, N2):
     res = np.fft.rfft(field, axis=0)
     res = np.fft.fft(res, axis=1)
+    res = res/N1/N2
     return res

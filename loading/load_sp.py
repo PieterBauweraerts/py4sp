@@ -148,8 +148,8 @@ def load_BLfieldstat_bin(filename, N1, N2, N3):
         stat['wst'] = dumm[:,:,:,10]
     return stat
 
-def load_BLfield_real(filename, N1, N2, N3):
-    N1 = N1/2+1
+def load_BLfield_real(filename):
+    #N1 = N1/2+1
     BL = {}
     with open(filename, 'rb') as binfile:
         BL['time'] = np.fromfile(binfile, dtype=np.float64, count=1)
@@ -171,6 +171,10 @@ def load_BLfield_real(filename, N1, N2, N3):
     print 'thetaground  = ', BL['thetaground']
     print 'restsize     = ', dum.size
     print '######################'
+
+    N1 = BL['Nx2']/2+1
+    N2 = BL['Ny']
+    N3 = BL['Nz']
 
     amount = N1*N2*N3
     shape  = (N1, N2, N3)
@@ -238,8 +242,8 @@ def cube_show_slider(cube, axis=2, **kwargs):
                                                                 
     plt.show()
 
-def load_BLfield(filename, N1, N2, N3):
-    N1 = N1/2+1
+def load_BLfield(filename):
+    #N1 = N1/2+1
     BL = {}
     with open(filename, 'rb') as binfile:
         BL['time'] = np.fromfile(binfile, dtype=np.float64, count=1)
@@ -250,6 +254,10 @@ def load_BLfield(filename, N1, N2, N3):
         BL['Nz'] = np.fromfile(binfile, dtype=np.int32, count=1)
         BL['thetaground'] = np.fromfile(binfile, dtype=np.float64, count=1)
         dum = np.fromfile(binfile,dtype=np.complex128)
+
+    N1 = BL['Nx2']/2+1
+    N2 = BL['Ny']
+    N3 = BL['Nz']
 
     amount = N1*N2*N3
     shape  = (N1, N2, N3)

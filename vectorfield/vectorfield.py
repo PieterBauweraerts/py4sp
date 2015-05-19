@@ -1,10 +1,10 @@
-import numpy as np
-import fft_sp as fft
+import matplotlib.pyplot as plt
 import load_sp as lsp
+import numpy as np
 
 # Class velocityfield, could make this inherit from greater vectorfield class in future...
 class VelocityField:
-    def __init__(self, filename):
+    def __init__(self, filename, *varargs):
         dum = lsp.load_BLfield_real(filename)
         self.Nx = dum['Nx2']
         self.Ny = dum['Ny']
@@ -12,13 +12,28 @@ class VelocityField:
         self.u = dum['u']
         self.v = dum['v']
         self.w = dum['w']
-        self.x = np.linspace(0, dum['Lx'], self.Nx, endpoint=True)
-        self.y = np.linspace(0, dum['Ly'], self.Ny, endpoint=True)
+        self.Lx = dum['Lx']
+        self.Ly = dum['Ly']
+        self.x = np.linspace(0, self.Lx, self.Nx, endpoint=True)
+        self.y = np.linspace(0, self.Ly, self.Ny, endpoint=True)
+        if('zmesh' in varargs):
+            self.z = np.loadtxt(zmesh)[2::2]
+            self.Lz = np.max(self.z)
+        else:
+            self.Lz = 1.
+            self.z = np.linspace(0, self.Lz, self.Nz)
 
-#    def divergence(self):
-#        dum = np.zeros(self.Nx, self.Ny, self.Nz, 3)
-#        dum[:,:,:,0] = self.u
-#        dum[:,:,:,1] = self.y
-#        dum[:,:,:,2] = self.w
-#        grad = np.gradient(dum)
-#        return 
+    def topview(self,k):
+        plt.figure()
+        plt.pcolormesh(self.x, self.y, np.transpose(self.u[:,:,k]))
+        plt.show()
+
+    def sideview(self,j):
+        plt.figure()
+        plt.pcolormesh(self.x, self.z, np.transpose(self.u[:,j,:]))
+        plt.show()
+
+    def frontview(self,i):
+        plt.figure()
+        plt.pcolormesh(self.y, self.z, np.transpose(self.u[i,:,:]))
+        plt.show()

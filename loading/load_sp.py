@@ -155,43 +155,12 @@ def load_BLfieldstat_bin(filename, N1, N2, N3):
     return stat
 
 def load_BLfield_real(filename):
-    #N1 = N1/2+1
-    BL = {}
-    with open(filename, 'rb') as binfile:
-        BL['time'] = np.fromfile(binfile, dtype=np.float64, count=1)
-        BL['Lx'] = np.fromfile(binfile, dtype=np.float64, count=1)
-        BL['Ly'] = np.fromfile(binfile, dtype=np.float64, count=1)
-        BL['Nx2'] = np.fromfile(binfile, dtype=np.int32, count=1)
-        BL['Ny'] = np.fromfile(binfile, dtype=np.int32, count=1)
-        BL['Nz'] = np.fromfile(binfile, dtype=np.int32, count=1)
-        BL['thetaground'] = np.fromfile(binfile, dtype=np.float64, count=1)
-        dum = np.fromfile(binfile,dtype=np.complex128)
-    print '######################'
-    print 'BL_field.dat data:'
-    print 'time         = ', BL['time']
-    print 'Lx           = ', BL['Lx']
-    print 'Ly           = ', BL['Ly']
-    print 'Nx2          = ', BL['Nx2']
-    print 'Ny           = ', BL['Ny']
-    print 'Nz           = ', BL['Nz']
-    print 'thetaground  = ', BL['thetaground']
-    print 'restsize     = ', dum.size
-    print '######################'
-
-    N1 = BL['Nx2']/2+1
-    N2 = BL['Ny']
-    N3 = BL['Nz']
-
-    amount = N1*N2*N3
-    shape  = (N1, N2, N3)
-    shape2 = (N1, N2, N3-1)
-    uu = dum[:amount].reshape(shape, order='F')
-    vv = dum[amount:2*amount].reshape(shape, order='F')
-    ww = dum[2*amount:].reshape(shape2, order='F')
+    BL = load_BLfield(filename)
     
-    BL['u']  = fft.c2r(uu, N1, N2)
-    BL['v']  = fft.c2r(vv, N1, N2)
-    BL['w']  = fft.c2r(ww, N1, N2)
+    BL['u']  = fft.c2r(BL['uu'], BL['Nx2'], BL['Ny'])
+    BL['v']  = fft.c2r(BL['vv'], BL['Nx2'], BL['Ny'])
+    BL['w']  = fft.c2r(BL['ww'], BL['Nx2'], BL['Ny'])
+    del BL['uu'], BL['vv'], BL['ww'], BL['kx'], BL['ky']
 
     return BL
 
@@ -259,6 +228,17 @@ def load_BLfield(filename, post=False):
         BL['Nz'] = np.fromfile(binfile, dtype=np.int32, count=1)
         BL['thetaground'] = np.fromfile(binfile, dtype=np.float64, count=1)
         dum = np.fromfile(binfile,dtype=np.complex128)
+    print '######################'
+    print 'BL_field.dat data:'
+    print 'time         = ', BL['time']
+    print 'Lx           = ', BL['Lx']
+    print 'Ly           = ', BL['Ly']
+    print 'Nx2          = ', BL['Nx2']
+    print 'Ny           = ', BL['Ny']
+    print 'Nz           = ', BL['Nz']
+    print 'thetaground  = ', BL['thetaground']
+    print 'restsize     = ', dum.size
+    print '######################'
 
     N1 = BL['Nx2']/2+1
     N2 = BL['Ny']

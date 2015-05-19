@@ -71,10 +71,16 @@ def load_field(filename, N1, N2, N3, N4):
     u = np.reshape(u, [N1, N2, N3, N4], order='F')
     return u
 
-def load_windpower(filename):
+def load_windpower(filename,Nrows,Ncols):
     dummy = np.loadtxt(filename,comments='%')
     time = dummy[:,0]
-    power = -dummy[:,2::2]
+    powerdum = -dummy[:,2::2]
+    # Reshape data into windfarm format, this assumes the turbines are numbered row per row
+    power = np.zeros((Nrows, Ncols, time.size))
+    for num in range(Nrows*Ncols):
+        row = int(num)/int(Ncols)
+        col = num - row*Ncols
+        power[row, col, :] = powerdum[:, num]
     return time, power
 
 def load_BLfieldstat(filename, N1, N2, N3):
@@ -242,8 +248,7 @@ def cube_show_slider(cube, axis=2, **kwargs):
                                                                 
     plt.show()
 
-def load_BLfield(filename):
-    #N1 = N1/2+1
+def load_BLfield(filename, post=False):
     BL = {}
     with open(filename, 'rb') as binfile:
         BL['time'] = np.fromfile(binfile, dtype=np.float64, count=1)
@@ -268,7 +273,6 @@ def load_BLfield(filename):
     BL['kx'] = [(i)/BL['Lx']*(2*np.pi) for i in range(N1/2)]
     BL['ky'] = [(i)/BL['Ly']*(2*np.pi) for i in range(-N2/2+1, N2/2)]
     
-    post = False
     BLpostkeys = ['uu','vv','ww']
     if post:
         for key in BLpostkeys:

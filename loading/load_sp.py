@@ -154,9 +154,13 @@ def load_BLfieldstat_bin(filename, N1, N2, N3):
         stat['wst'] = dumm[:,:,:,10]
     return stat
 
-def load_BLfield_real(filename):
-    BL = load_BLfield(filename)
+def load_BLfield_real(filename, **kwargs):
+    if('Nx' in kwargs):
+        BL = load_BLfield(filename,Nx=kwargs['Nx'], Ny=kwargs['Ny'], Nz=kwargs['Nz'])
+    else:
+        BL = load_BLfield(filename)
     
+    print 'Performing c2r ffts'
     BL['u']  = fft.c2r(BL['uu'], BL['Nx2'], BL['Ny'])
     BL['v']  = fft.c2r(BL['vv'], BL['Nx2'], BL['Ny'])
     BL['w']  = fft.c2r(BL['ww'], BL['Nx2'], BL['Ny'])
@@ -165,14 +169,14 @@ def load_BLfield_real(filename):
     return BL
 
 def load_BLfield_real_ascii(filename, N1, N2, N3):
-    N1 = N1/2+1
+    N1h = N1/2+1
     BL = {}
     dum = np.loadtxt(filename, comments='%')
     dum = dum[:,0] + 1j*dum[:,1]
 
-    amount = N1*N2*N3
-    shape  = (N1, N2, N3)
-    shape2 = (N1, N2, N3-1)
+    amount = N1h*N2*N3
+    shape  = (N1h, N2, N3)
+    shape2 = (N1h, N2, N3-1)
     uu = dum[:amount].reshape(shape, order='F')
     vv = dum[amount:2*amount].reshape(shape, order='F')
     ww = dum[2*amount:].reshape(shape2, order='F')
@@ -183,7 +187,7 @@ def load_BLfield_real_ascii(filename, N1, N2, N3):
 
     return BL
 
-def cube_show_slider(cube, axis=2, **kwargs):
+def cube_show_slider(cube, axis=2, **args):
     import matplotlib.pyplot as plt
     from matplotlib.widgets import Slider, Button, RadioButtons
     # check dim
@@ -199,7 +203,7 @@ def cube_show_slider(cube, axis=2, **kwargs):
     im = cube[s].squeeze()
 
     # display image
-    l = ax.imshow(im, **kwargs)
+    l = ax.imshow(im, **args)
     axcolor = 'lightgoldenrodyellow'
     ax = fig.add_axes([0.25, 0.1, 0.65, 0.03], axisbg=axcolor)
         
@@ -210,14 +214,14 @@ def cube_show_slider(cube, axis=2, **kwargs):
         ind = int(slider.val)
         s = [slice(ind, ind + 1) if i == axis else slice(None) for i in xrange(3)]
         im = cube[s].squeeze()
-        l.set_data(im, **kwargs)
+        l.set_data(im, **args)
         fig.canvas.draw()
         
     slider.on_changed(update)
                                                                 
     plt.show()
 
-def load_BLfield(filename, post=False):
+def load_BLfield(filename, real=False, log=False, cut=False, **kwargs):
     BL = {}
     with open(filename, 'rb') as binfile:
         BL['time'] = np.fromfile(binfile, dtype=np.float64, count=1)
@@ -228,6 +232,14 @@ def load_BLfield(filename, post=False):
         BL['Nz'] = np.fromfile(binfile, dtype=np.int32, count=1)
         BL['thetaground'] = np.fromfile(binfile, dtype=np.float64, count=1)
         dum = np.fromfile(binfile,dtype=np.complex128)
+    if('Nx' in kwargs):
+        BL['Nx2'] = kwargs['Nx']
+        BL['Ny'] = kwargs['Ny']
+        BL['Nz'] = kwargs['Nz']
+    if('Lx' in kwargs):
+        BL['Lx'] = kwargs['Lx']
+    if('Ly' in kwargs):
+        BL['Ly'] = kwargs['Ly']
     print '######################'
     print 'BL_field.dat data:'
     print 'time         = ', BL['time']
@@ -250,18 +262,29 @@ def load_BLfield(filename, post=False):
     BL['uu'] = dum[:amount].reshape(shape, order='F')
     BL['vv'] = dum[amount:2*amount].reshape(shape, order='F')
     BL['ww'] = dum[2*amount:].reshape(shape2, order='F')
-    BL['kx'] = [(i)/BL['Lx']*(2*np.pi) for i in range(N1/2)]
-    BL['ky'] = [(i)/BL['Ly']*(2*np.pi) for i in range(-N2/2+1, N2/2)]
+    BL['kx'] = np.array([(i)/BL['Lx']*(2*np.pi) for i in range(N1)])
+    BL['ky'] = np.array([(i)/BL['Ly']*(2*np.pi) for i in range(-N2/2+1, N2/2+1)])
     
     BLpostkeys = ['uu','vv','ww']
-    if post:
+    if cut:
+        BL['kx'] = BL['kx'][:-1]
+        BL['ky'] = BL['ky'][:-1]
+
         for key in BLpostkeys:
-        # Take the logs
-            BL[key] = np.log(np.abs(BL[key]))   
         # Shift spectrum to match correct locations
             BL[key] = np.fft.fftshift(BL[key],axes=(1,))
         # Remove the defunct wavenumbers
             BL[key] = BL[key][:N1-1, 1:] 
+    if real:
+        for key in BLpostkeys:
+            BL[key] = np.real(BL[key])
+
+    if log:
+        for key in BLpostkeys:
+        # Take the logs
+            BL[key] = np.log(np.abs(BL[key]))   
+
+
 
     return BL
 

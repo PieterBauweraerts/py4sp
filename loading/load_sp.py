@@ -24,9 +24,10 @@ def load_NSp(filename):
     NSp['W'] = dummy[:,3]
     NSp['Etot'] = dummy[:,4]
     NSp['Eturb'] = dummy[:,5]
-    NSp['sf_mean_x'] = dummy[:,6]
-    NSp['sf_Um'] = dummy[:,6]
-    NSp['sf_sgs'] = dummy[:,6]
+    NSp['sf_mean_x'] = dummy[:,6] # based on integral of right-hand side stress terms
+    NSp['sf_mean_y'] = dummy[:,7] # based on integral of right-hand side stress terms
+    NSp['sf_Um'] = dummy[:,8] # based on log law an <U>[0]
+#    NSp['sf_sgs'] = dummy[:,6]
     return NSp
 
 def load_BLcc(filename):

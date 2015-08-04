@@ -32,7 +32,7 @@ def write_BLfield(field, filename, spectral=False):
             field['ww'].tofile(binfile)
 
         else:
-            fft.r2c(field['uu'], field['Nx2'], field['Ny']).tofile(binfile)
-            fft.r2c(field['vv'], field['Nx2'], field['Ny']).tofile(binfile)
-            fft.r2c(field['ww'], field['Nx2'], field['Ny']).tofile(binfile)
+            fft.r2c(field['u'], field['Nx2'], field['Ny']).tofile(binfile)
+            fft.r2c(field['v'], field['Nx2'], field['Ny']).tofile(binfile)
+            fft.r2c(field['w'], field['Nx2'], field['Ny']).tofile(binfile)
 

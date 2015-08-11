@@ -3,7 +3,7 @@ import fft_sp as fft
 
 def write_BLfield(field, filename, spectral=False):
     print '##########################################'
-    print '# Reading field to file ', filename
+    print '# Writing field to file ', filename
     print '# Input field is spectral? ', spectral
     print '# ------------------------------------------'
     print '# Field information'
@@ -18,21 +18,28 @@ def write_BLfield(field, filename, spectral=False):
     print '##########################################'
 
     with open(filename,'wb') as binfile:
-        field['time'].tofile(binfile)
-        field['Lx'].tofile(binfile)
-        field['Ly'].tofile(binfile)
-        field['Nx2'].tofile(binfile)
-        field['Ny'].tofile(binfile)
-        field['Nz'].tofile(binfile)
-        field['thetaground'].tofile(binfile)
+        field['time'].astype(dtype=np.float64).tofile(binfile)
+        field['Lx'].astype(dtype=np.float64).tofile(binfile)
+        field['Ly'].astype(dtype=np.float64).tofile(binfile)
+        field['Nx2'].astype(dtype=np.int32).tofile(binfile)
+        field['Ny'].astype(dtype=np.int32).tofile(binfile)
+        field['Nz'].astype(dtype=np.int32).tofile(binfile)
+        field['thetaground'].astype(dtype=np.float64).tofile(binfile)
 
         if spectral:
-            field['uu'].tofile(binfile)
-            field['vv'].tofile(binfile)
-            field['ww'].tofile(binfile)
+            field['uu'].reshape((field['uu'].size,1), order='F').tofile(binfile)
+            field['vv'].reshape((field['vv'].size,1), order='F').tofile(binfile)
+            field['ww'].reshape((field['ww'].size,1), order='F').tofile(binfile)
 
         else:
-            fft.r2c(field['u'], field['Nx2'], field['Ny']).tofile(binfile)
-            fft.r2c(field['v'], field['Nx2'], field['Ny']).tofile(binfile)
-            fft.r2c(field['w'], field['Nx2'], field['Ny']).tofile(binfile)
+            # Convert to wavenumber space
+            uu =fft.r2c(field['u'], field['Nx2'], field['Ny']).astype(np.complex128)
+            vv =fft.r2c(field['v'], field['Nx2'], field['Ny']).astype(np.complex128)
+            ww =fft.r2c(field['w'], field['Nx2'], field['Ny']).astype(np.complex128)
+            # Reshape and write to file
+            uu = uu.reshape((uu.size,1), order='F').tofile(binfile)
+            vv = vv.reshape((vv.size,1), order='F').tofile(binfile)
+            ww = ww.reshape((ww.size,1), order='F').tofile(binfile)
+
+
 

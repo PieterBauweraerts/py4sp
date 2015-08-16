@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 class Profile:
     def __init__(self, filename):
         dum = lsp.load_BLcc(filename)
+        self.filename = filename
         self.z = dum['z']
         self.U = dum['U']
         self.V = dum['V']
@@ -16,6 +17,22 @@ class Profile:
         self.uw = dum['uw']
         self.vw = dum['vw']
         
+    def plot_all(self, **kwargs):
+        if('label' in kwargs):
+            lbl = kwargs['label']
+        else:
+            lbl = self.filename
+
+        plt.subplot(221)
+        self.plot_loglaw(label=lbl)
+
+        plt.subplot(222)
+        plt.plot(self.z, self.uu, label='uu')
+        plt.plot(self.z, self.uv, label='uv')
+        plt.plot(self.z, self.uw, label='uw')
+
+
+
     def plot_loglaw(self, **kwargs):
         if('utau' in kwargs):
             ut = kwargs['utau']
@@ -24,7 +41,7 @@ class Profile:
         if('label' in kwargs):
             lbl = kwargs['label']
         else:
-            lbl = ''
+            lbl = self.filename
         plt.semilogx( self.z / self.z.max(), self.U/ut, label=lbl)
 
     def calc_TI(self, **kwargs):
@@ -53,7 +70,7 @@ class Profile:
         if 'label' in kwargs:
             lab = kwargs['label']
         else:
-            lab = ''
+            lab = self.filename
 
         if ('fmt' in kwargs):
             plt.plot(TI, self.z, fmt, label=lab)

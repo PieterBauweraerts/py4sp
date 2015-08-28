@@ -23,17 +23,20 @@ class VelocityField:
             self.Lz = 1.
             self.z = np.linspace(0, self.Lz, self.Nz)
 
-    def topview(self,k):
+    def topview(self,z):
+        k = np.max(np.where(self.z<=z))
         plt.figure()
         plt.pcolormesh(self.x, self.y, np.transpose(self.u[:,:,k]))
         plt.show()
 
-    def sideview(self,j):
+    def sideview(self,y):
+        j = np.max(np.where(self.y<=y))
         plt.figure()
         plt.pcolormesh(self.x, self.z, np.transpose(self.u[:,j,:]))
         plt.show()
 
-    def frontview(self,i):
+    def frontview(self,x):
+        i = np.max(np.where(self.x<=x))
         plt.figure()
         plt.pcolormesh(self.y, self.z, np.transpose(self.u[i,:,:]))
         plt.show()

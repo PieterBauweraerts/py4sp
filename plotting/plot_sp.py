@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import load_sp as lsp
 from load_sp import load_plane
 
 def plot_turbines_topview(filename):
@@ -55,4 +56,20 @@ def cube_show_slider(cube, axis=2, **kwargs):
                                                                 
     plt.show()
 
+
+def make_movie(time_array,N1,N2):
+    
+    for t in time_array:
+        plt.clf()
+        tstr = "{:6.4f}".format(t)
+        print 'Loading t = ', tstr
+        basefilename = '_zplane_k013_t_'
+        filenameu = 'u'+basefilename+tstr+'.dat'
+        filenamev = 'v'+basefilename+tstr+'.dat'
+        u = lsp.load_plane(filenameu, N1=N1, N2=N2)
+        v = lsp.load_plane(filenamev, N1=N1, N2=N2)
+        plt.pcolormesh(np.transpose(np.sqrt(u**2+v**2)))
+        plt.clim((0, 30))
+        plt.colorbar()
+        plt.savefig('u_'+tstr+'.png')
 

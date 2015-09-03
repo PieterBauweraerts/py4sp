@@ -162,10 +162,17 @@ def load_BLfield_real(filename, **kwargs):
         BL = load_BLfield(filename)
     
     print 'Performing c2r ffts'
-    BL['u']  = fft.c2r(BL['uu'], BL['Nx2'], BL['Ny'])
-    BL['v']  = fft.c2r(BL['vv'], BL['Nx2'], BL['Ny'])
-    BL['w']  = fft.c2r(BL['ww'], BL['Nx2'], BL['Ny'])
-    del BL['uu'], BL['vv'], BL['ww'], BL['kx'], BL['ky']
+    if('k' in kwargs):
+        k = kwargs['k']
+        BL['u']  = fft.c2r(BL['uu'][:,:,k], BL['Nx2'], BL['Ny'])
+        BL['v']  = fft.c2r(BL['vv'][:,:,k], BL['Nx2'], BL['Ny'])
+        BL['w']  = fft.c2r(BL['ww'][:,:,k], BL['Nx2'], BL['Ny'])
+        del BL['uu'], BL['vv'], BL['ww'], BL['kx'], BL['ky']
+    else:
+        BL['u']  = fft.c2r(BL['uu'], BL['Nx2'], BL['Ny'])
+        BL['v']  = fft.c2r(BL['vv'], BL['Nx2'], BL['Ny'])
+        BL['w']  = fft.c2r(BL['ww'], BL['Nx2'], BL['Ny'])
+        del BL['uu'], BL['vv'], BL['ww'], BL['kx'], BL['ky']
 
     return BL
 

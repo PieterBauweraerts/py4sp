@@ -5,7 +5,7 @@ import sys
 import os
 
 class Windfarm:
-    def __init__(self, Nrows, Ncols, path='./', windpowerfile='Windpower.dat'):
+    def __init__(self, Nrows=1, Ncols=1, path='./', windpowerfile='Windpower.dat',windfarmfile='windfarm.setup'):
         self.path                       = path
         self.Nrows                      = Nrows
         self.Ncols                      = Ncols

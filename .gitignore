@@ -1,2 +1,4 @@
 */*.pyc
 */*ZMESH*
+__pycache__
+*/__pycache__

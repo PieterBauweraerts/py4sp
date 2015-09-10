@@ -28,10 +28,24 @@ class Windfarm:
         if show:
             plt.show()
 
-    def plot_total_power(self, show=True):
-        plt.plot(self.wptime, self.totalpower)
+    def plot_total_power(self, show=True, label='', **kwargs):
+        plot_power = self.windpower
+        if 'row' in kwargs and 'col' in kwargs:
+            ylab = 'P row = '+str(kwargs['row']) + ' col = '+str(kwargs['col'])
+            plot_power = plot_power[kwargs['row']-1, kwargs['col']-1, :]
+        elif 'row' in kwargs:
+            ylab = 'P row = '+str(kwargs['row'])
+            plot_power = np.sum(plot_power[kwargs['row']-1, :, :],0)
+        elif 'col' in kwargs:
+            plot_power = np.sum(plot_power[:,kwargs['col']-1, :],0)
+            ylab = 'P col = '+str(kwargs['col'])
+        else:
+            plot_power = np.sum( np.sum( plot_power, 0), 0)
+            ylab = 'P_tot'
+        
+        plt.plot(self.wptime, plot_power,label=label)
         plt.xlabel('rows')
-        plt.ylabel('P_tot')
+        plt.ylabel(ylab)
         if show:
             plt.show()
 

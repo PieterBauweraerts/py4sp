@@ -80,7 +80,7 @@ def load_windfarm(filename, Nrows, Ncols):
             windfarm.append(Turbine(turbine_data, row, col))
         return windfarm
     else:
-        print 'windfarm.setup not found'
+        print( 'windfarm.setup not found' )
         return 0
 
 def load_windpower(filename, Nrows, Ncols):
@@ -95,11 +95,11 @@ def load_windpower(filename, Nrows, Ncols):
             power[row, col, :] = powerdum[:, num]
         return time, power
     else:
-        print 'Windpower file not found.'
+        print( 'Windpower file not found.' )
         return np.zeros((1)), np.zeros((Nrows, Ncols, 1))
 
 def get_row_col(index, Ncols):
-    row = int(index)/int(Ncols)
+    row = int(index//Ncols)
     col = index - row*Ncols
     return row, col
 

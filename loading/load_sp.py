@@ -161,7 +161,7 @@ def load_BLfield_real(filename, **kwargs):
     else:
         BL = load_BLfield(filename)
     
-    print 'Performing c2r ffts'
+    print('Performing c2r ffts')
     if('k' in kwargs):
         k = kwargs['k']
         BL['u']  = fft.c2r(BL['uu'][:,:,k], BL['Nx2'], BL['Ny'])
@@ -248,19 +248,19 @@ def load_BLfield(filename, real=False, log=False, cut=False, **kwargs):
         BL['Lx'] = kwargs['Lx']
     if('Ly' in kwargs):
         BL['Ly'] = kwargs['Ly']
-    print '######################'
-    print 'BL_field.dat data:'
-    print 'time         = ', BL['time']
-    print 'Lx           = ', BL['Lx']
-    print 'Ly           = ', BL['Ly']
-    print 'Nx2          = ', BL['Nx2']
-    print 'Ny           = ', BL['Ny']
-    print 'Nz           = ', BL['Nz']
-    print 'thetaground  = ', BL['thetaground']
-    print 'restsize     = ', dum.size
-    print '######################'
+    print( '######################' )
+    print( 'BL_field.dat data:' )
+    print( 'time         = ', BL['time'] )
+    print( 'Lx           = ', BL['Lx'] )
+    print( 'Ly           = ', BL['Ly'] )
+    print( 'Nx2          = ', BL['Nx2'] )
+    print( 'Ny           = ', BL['Ny'] )
+    print( 'Nz           = ', BL['Nz'] )
+    print( 'thetaground  = ', BL['thetaground'] )
+    print( 'restsize     = ', dum.size )
+    print( '######################' )
 
-    N1 = BL['Nx2']/2+1
+    N1 = int(BL['Nx2']/2+1)
     N2 = BL['Ny']
     N3 = BL['Nz']
 
@@ -271,7 +271,7 @@ def load_BLfield(filename, real=False, log=False, cut=False, **kwargs):
     BL['vv'] = dum[amount:2*amount].reshape(shape, order='F')
     BL['ww'] = dum[2*amount:].reshape(shape2, order='F')
     BL['kx'] = np.array([(i)/BL['Lx']*(2*np.pi) for i in range(N1)])
-    BL['ky'] = np.array([(i)/BL['Ly']*(2*np.pi) for i in range(-N2/2+1, N2/2+1)])
+    BL['ky'] = np.array([(i)/BL['Ly']*(2*np.pi) for i in range(int(-N2/2+1), int(N2/2+1))])
     
     BLpostkeys = ['uu','vv','ww']
     if cut:

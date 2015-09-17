@@ -44,7 +44,7 @@ class Windfarm:
             ylab = 'P_tot'
         
         plt.plot(self.wptime, plot_power,label=label)
-        plt.xlabel('rows')
+        plt.xlabel('time')
         plt.ylabel(ylab)
         if show:
             plt.show()
@@ -75,9 +75,12 @@ def load_windfarm(filename, Nrows, Ncols):
     #    print 'Amount of rows    = ', Nrows
     #    print 'Amount of columns = ', Ncols
         windfarm = [] # Empty list
-        for index, turbine_data in enumerate(dummy):
-            row, col = get_row_col(index, Ncols)
-            windfarm.append(Turbine(turbine_data, row, col))
+        if dummy.size==8:
+            windfarm.append(Turbine(dummy, 1, 1))
+        else:
+            for index, turbine_data in enumerate(dummy):
+                row, col = get_row_col(index, Ncols)
+                windfarm.append(Turbine(turbine_data, row, col))
         return windfarm
     else:
         print( 'windfarm.setup not found' )

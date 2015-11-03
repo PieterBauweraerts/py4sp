@@ -17,9 +17,11 @@ class Windfarm:
         self.power_per_col              = np.mean(self.meanwindpower,0) 
         self.rows                       = np.arange(Nrows)
         self.cols                       = np.arange(Ncols)
+        self.time_integrated_power      = calc_time_integrated_power(self.totalpower, self.wptime)
 
         self.Sx = 0.
         self.Sy = 0.
+
 
     def plot_power_per_row(self, show=True):
         plt.plot(self.rows, self.power_per_row/self.power_per_row[0])
@@ -106,6 +108,11 @@ def get_row_col(index, Ncols):
     col = index - row*Ncols
     return row, col
 
+def calc_time_integrated_power(power, time):
+    J = 0
+    for i in range(1, time.size):
+        J += power[i]*(time[i] - time[i-1])
+    return J
 #def get_rows_and_cols(x, y):
 #    # Works only for regular windfarms!
 #    xt1 = x[0]

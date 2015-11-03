@@ -1,5 +1,6 @@
 import numpy as np
 import fft_sp as fft
+import os
 
 class Turbine:
     def __init__(self, turb):
@@ -7,6 +8,33 @@ class Turbine:
         self.y = turb[1]
         self.H = turb[2]
         self.r = turb[4]
+
+class setup: 
+    def __init__(self, path='./'):
+        data = []
+        with open(path+'NS.setup','r') as f:
+            for line in f.readlines():
+                data.append(line.replace('\n','').split(' '))
+
+        self.case   = data[1][0]
+        self.thermo = data[3][0]
+        self.ekman  = data[5][0]
+        self.Nx2    = int(data[7][0])
+        self.Ny     = int(data[7][1])
+        self.Lx     = float(data[9][0].replace('d','e'))
+        self.Ly     = float(data[9][1].replace('d','e'))
+        self.tstart = float(data[15][0].replace('d','e'))
+        self.tstop  = float(data[17][0].replace('d','e'))
+        self.dt1    = float(data[19][0].replace('d','e'))
+        self.dt2    = float(data[21][0].replace('d','e'))
+        self.zmeshf = data[23][0]
+        print(path+self.zmeshf)
+        if(os.path.exists(path+self.zmeshf)):
+            self.zmesh_cc  = np.loadtxt(path+self.zmeshf,skiprows=2)[::2]
+        else: 
+            print('ZMESH file not found.')
+            self.zmesh_cc = '0'
+
 
 def load_windfarm(filename):
     dummy = np.loadtxt(filename, skiprows=2)

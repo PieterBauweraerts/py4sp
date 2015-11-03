@@ -2,6 +2,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import load_sp as lsp
 from load_sp import load_plane
+import os
+from matplotlib import cm 
 
 def plot_turbines_topview(filename):
     turbines = np.loadtxt(filename, skiprows=2)
@@ -12,9 +14,81 @@ def plot_turbines_topview(filename):
         ycoords = np.array([ycoord - radius, ycoord + radius])
         plt.plot((xcoord, xcoord), ycoords, 'k', lw=2)
 
-def plot_planexy(filename, Nx, Ny):
+def movie_xy(k, dt, var='u', setuppath='./../', **kwargs):
+    """
+    function movie_xy
+
+    Parameters
+    ------------
+    k: int
+        grid index in zmesh where slices should be plotted
+    dt: float
+        timestep betwee snapshots
+    var: str, optional
+        variable to be plotted, default is 'u'
+    setuppath : str, optional
+        path where setupfile is located, default is './../'
+    clim: tuple, optional kwarg
+        colorbar limits for movie, default is (0,25)
+    cmap: str, optional
+        colormap used in movie, default is 'jet'
+    tstart: float, optional
+        initial time for movie snapshots
+    tstop: float, optional
+        final time for movie snapshots
+    """
+    basename = var+'_zplane_k'+"{0:03d}".format(k)+'_t_'
+    setup = lsp.setup(setuppath)
+    plt.figure()
+    plt.ion()
+    if 'clim' in kwargs:
+        cl = kwargs['clim']
+    else:
+        cl = (0,25)
+    if 'cm' in kwargs:
+        cmap = kwargs['cm']
+    else:
+        cmap = 'jet'
+
+    if 'tstop' in kwargs:
+        t = np.arange(kwargs['tstart'], kwargs['tstop'], dt)
+        print('Making movie for t = ', t)
+        for tim in t:
+            plt.clf()
+            print('Plotting t =', tim)
+            filename = basename+"{:4.4f}".format(tim)+".dat"
+            plt.title(tim)
+            plot_planexy(filename,show=False,prin=False,clim=cl,cm=cmap)
+            plt.pause(0.1)
+    else:
+        print('Automatic timeloop not yet implemented')
+
+
+def plot_planexy(filename, Nx=0, Ny=0, show=True, prin=True,**kwargs):
     # First read from setup
-    return 0
+    if(os.path.exists('./../NS.setup')):
+        if prin:
+            print('Reading grid dimensions from setup file')
+        setup = lsp.setup('./../')
+        Nxd = setup.Nx2
+        Nyd = setup.Ny
+        if prin:
+            print('Nx = ', Nxd)
+            print('Ny = ', Nyd)
+    else:
+        print('Taking grid dimensions from input parameters')
+        Nxd = Nx
+        Nyd = Ny
+    data = lsp.load_plane(filename, Nxd, Nyd)
+    if 'cm' in kwargs:
+        cmap = kwargs['cm']
+    else:
+        cmap = 'jet'
+    plt.imshow(np.flipud(np.transpose(data)), extent=(0, setup.Lx, 0, setup.Ly),cmap=cmap); plt.colorbar()
+    if 'clim' in kwargs:
+        plt.clim(kwargs['clim'])
+    if show:
+        plt.show()
 
 def plot_planeyz(filename, Ny, Nz):
     return 0
@@ -56,13 +130,28 @@ def cube_show_slider(cube, axis=2, **kwargs):
                                                                 
     plt.show()
 
+def plot_controls(turbine):
+    basefile = 'f_params'
+    count = 0
+    cont = True
+    while cont:
+        filename = 'f_params'+str(count)+'.txt'
+        if os.path.exists(filename):
+            f = np.loadtxt(filename,skiprows=5)[:,1:] 
+            plt.plot(f[turbine], label=count)
+        else:
+            cont = False
+        count += 1
+    plt.legend(loc=0)
+    plt.show()
+
 
 def make_movie(time_array,N1,N2):
     
     for t in time_array:
         plt.clf()
         tstr = "{:6.4f}".format(t)
-        print 'Loading t = ', tstr
+        print( 'Loading t = ', tstr)
         basefilename = '_zplane_k013_t_'
         filenameu = 'u'+basefilename+tstr+'.dat'
         filenamev = 'v'+basefilename+tstr+'.dat'

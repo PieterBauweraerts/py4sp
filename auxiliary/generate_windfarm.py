@@ -3,24 +3,22 @@ import matplotlib.pyplot as plt
 
 def generate(dx_turb=.004, Ct_tower=1.2, 
         Ct=4./3., timeconstant=.005, powerconstant=0., turbinescaling=1000., 
-        plot=False, **kwargs):
+        plot=False, staggered=False, **kwargs):
 
 
     # Domain parameters
-    Lfringe = np.pi/2
-    Lx = np.pi+Lfringe
-    Ly = 2*np.pi
+    Lfringe = 1.
+    Lx = 10.
+    Ly = 3.6
     H = 1.
-    Nx = Lx/np.pi*128
-    Ny = 256
     
     # Turbine parameters
     D = .1
     zhub = .1
     
     # Farm parameters
-    Nrows = 4
-    Ncols = 12
+    Nrows = 10
+    Ncols = 6
     
     # Spacing
     if 'xturb' in kwargs:
@@ -35,22 +33,25 @@ def generate(dx_turb=.004, Ct_tower=1.2,
     else:
         print('Using default turbine locations')
         Nturb = Nrows*Ncols
-        Sx = 7.85*D
+        Sx = 7*D
         
         Sy = Ly/Ncols
         
+        print('Sx/D = ', Sx/D)
+        print('Sy/D = ', Sy/D)
+
         print(Sx/Sy)
         
         ylocs = np.zeros(Ncols)
         for col in range(Ncols):
             offset = Sy/2
             ylocs[col] = offset+col*Sy
-        
+
         print('Y locations: ')
         print(ylocs)
         
         xlocs = np.zeros(Nrows)
-        offset = Sx/2
+        offset = 1.5*Sx
         for row in range(Nrows):
             xlocs[row] = offset+row*Sx
         
@@ -58,10 +59,19 @@ def generate(dx_turb=.004, Ct_tower=1.2,
         print(xlocs)
     
     # Now we generate the file
+    if staggered: 
+        print('###################################')
+        print('#  Generating staggered windfarm  #')
+        print('###################################')
+    else: 
+        print('###################################')
+        print('#   Generating aligned windfarm   #')
+        print('###################################')
     
     if plot:
         plt.figure()
 
+    eps = 1e-6
     # Windfarm file
     if 'filename_farm' in kwargs:
         filenamef = kwargs['filename_farm']
@@ -75,9 +85,20 @@ def generate(dx_turb=.004, Ct_tower=1.2,
             col = turbine - row*Ncols
             xt = xlocs[row]
             yt = ylocs[col]
+            if staggered and not np.mod(row,2) == 0:
+                yt_1 = yt+Sy/2
+                if np.abs(yt_1-Ly) <= eps:
+                    print(yt_1)
+                    print(Ly)
+                    print('--')
+                    yt = yt_1 - Ly
+                else:
+                    yt = yt_1
             windfarmfile.write("{:10.7f}".format(xt) + "{:15.7f}".format(yt) + "{:15.7f}".format(zhub) + "{:15.7f}".format(.015)+"{:15.7f}".format(D/2)+"{:15.7f}".format(20.)+"{:15.7f}".format(0.)+"{:15.7f}".format(1.5)+'\n')
             if plot:
                 plt.plot((xt, xt), (yt-D/2, yt+D/2), 'k', lw=2)
+                if staggered and not np.mod(row,2) == 0 and not yt == yt_1:
+                    plt.plot((xt, xt), (yt_1-D/2, yt_1+D/2), 'k', lw=2) 
     
     # Towerfarm file
     if 'filename_tower' in kwargs:
@@ -92,15 +113,28 @@ def generate(dx_turb=.004, Ct_tower=1.2,
             col = tower - row*Ncols
             xt = xlocs[row]+dx_turb
             yt = ylocs[col]
+            if staggered and not np.mod(row,2) == 0:
+                yt = yt+Sy/2
+                yt = yt - int(yt/Ly)*Ly
             towerfile.write("{:10.7f}".format(xt) + "{:15.7f}".format(yt) + "{:15.7f}".format(zhub) + "{:15.7f}".format(.0045000)+"{:15.7f}".format(zhub)+"{:15.7f}".format(1.5)+'\n')
             if plot:
-                plt.plot((xt, yt),(xt,yt),'or',mec='r')
+                pass
+#                plt.plot((xt, xt),(yt,yt),'or',mec='r')
 
     if plot:
         plt.ion()
-        plt.show()
+        plt.axvline(x=9, linestyle='--', color='r')
+        plt.gca().set_aspect('equal')
+        plt.gca().autoscale(tight=True)
         plt.ylim((0,Ly))
         plt.xlim((0,Lx))
+        plt.xlabel(r'$x$ [km]')
+        plt.ylabel(r'$y$ [km]')
+        plt.yticks((0,1,2,3))
+        plt.xticks((0,1,2,3,4,5,6,7,8,9,10))
+        plt.savefig('aligned.png',dpi=300)
+        plt.savefig('aligned.eps')
+        plt.show()
 
 
 

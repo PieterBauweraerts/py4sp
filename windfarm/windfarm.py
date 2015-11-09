@@ -43,9 +43,17 @@ class Windfarm:
             ylab = 'P col = '+str(kwargs['col'])
         else:
             plot_power = np.sum( np.sum( plot_power, 0), 0)
-            ylab = 'P_tot'
+            ylab = r'$P_{tot}$'
+
+        if 'lw' in kwargs:
+            linewidth = kwargs['lw']
+        else:
+            linewidth = 1
         
-        plt.plot(self.wptime, plot_power,label=label)
+        if 'color' in kwargs:
+            plt.plot(self.wptime, plot_power,kwargs['color'], label=label, lw=linewidth)
+        else:
+            plt.plot(self.wptime, plot_power,label=label, lw=linewidth)
         plt.xlabel('time')
         plt.ylabel(ylab)
         if show:
